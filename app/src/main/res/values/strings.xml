@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">WeatherApp</string>
+    <string name="close_app">Close App?</string>
+    <string name="cancel">CANCEL</string>
+    <string name="close">CLOSE</string>
+    <string name="select">SELECT</string>
+    <string name="enter_city">enter city</string>
+    <string name="loading">" "LOADING...</string>
+</resources>
