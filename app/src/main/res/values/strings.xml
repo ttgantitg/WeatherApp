@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WeatherApp</string>
+    <string name="app_name">WEATHER</string>
     <string name="close_app">Close App?</string>
     <string name="cancel">CANCEL</string>
     <string name="close">CLOSE</string>
