@@ -6,13 +6,19 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 class RetrofitInit {
 
-	private static RetrofitInit singleton = null;
+	private static volatile RetrofitInit instance;
 
-	static RetrofitInit getSingleton() {
-		if(singleton == null) {
-			singleton = new RetrofitInit();
+	static RetrofitInit getInstance() {
+		RetrofitInit localInstance = instance;
+		if (localInstance == null) {
+			synchronized (RetrofitInit.class) {
+				localInstance = instance;
+				if (localInstance == null) {
+					instance = localInstance = new RetrofitInit();
+				}
+			}
 		}
-		return singleton;
+		return localInstance;
 	}
 
 	Retrofit retrofit = new Retrofit.Builder()

@@ -23,11 +23,11 @@ public class WeatherRepository implements IWeatherRepository {
 	}
 
     private ICityWeather createCityAdapter() {
-        return RetrofitInit.getSingleton().retrofit.create(ICityWeather.class);
+        return RetrofitInit.getInstance().retrofit.create(ICityWeather.class);
     }
 
 	private ILocationWeather createLocationAdapter() {
-		return RetrofitInit.getSingleton().retrofit.create(ILocationWeather.class);
+		return RetrofitInit.getInstance().retrofit.create(ILocationWeather.class);
 	}
 
 	@Override
