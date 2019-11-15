@@ -1,4 +1,4 @@
-package androidapp.com.weatherapp3.data;
+package androidapp.com.weatherapp.data;
 
 class ApiConstants {
 

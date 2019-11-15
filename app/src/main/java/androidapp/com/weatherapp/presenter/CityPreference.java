@@ -1,4 +1,4 @@
-package androidapp.com.weatherapp3.presenter;
+package androidapp.com.weatherapp.presenter;
 
 import android.app.Activity;
 import android.content.SharedPreferences;

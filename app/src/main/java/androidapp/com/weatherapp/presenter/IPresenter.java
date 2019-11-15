@@ -1,4 +1,4 @@
-package androidapp.com.weatherapp3.presenter;
+package androidapp.com.weatherapp.presenter;
 
 public interface IPresenter {
 	void requestWeather(String city);

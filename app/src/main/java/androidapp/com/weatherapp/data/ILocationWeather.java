@@ -1,8 +1,7 @@
-package androidapp.com.weatherapp3.data;
+package androidapp.com.weatherapp.data;
 
-import androidapp.com.weatherapp3.data.models.WeatherRequestRestModel;
+import androidapp.com.weatherapp.data.models.WeatherRequestRestModel;
 import io.reactivex.Single;
-import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 

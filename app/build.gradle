@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "androidapp.com.weatherapp3"
+        applicationId "androidapp.com.weatherapp"
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 1

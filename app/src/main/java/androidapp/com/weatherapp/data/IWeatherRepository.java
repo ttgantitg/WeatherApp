@@ -1,6 +1,6 @@
-package androidapp.com.weatherapp3.data;
+package androidapp.com.weatherapp.data;
 
-import androidapp.com.weatherapp3.data.models.WeatherRequestRestModel;
+import androidapp.com.weatherapp.data.models.WeatherRequestRestModel;
 import io.reactivex.Single;
 
 public interface IWeatherRepository {

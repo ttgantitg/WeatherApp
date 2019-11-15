@@ -1,4 +1,4 @@
-package androidapp.com.weatherapp3.data.models;
+package androidapp.com.weatherapp.data.models;
 
 import com.google.gson.annotations.SerializedName;
 

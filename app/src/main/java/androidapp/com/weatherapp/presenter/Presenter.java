@@ -1,13 +1,13 @@
-package androidapp.com.weatherapp3.presenter;
+package androidapp.com.weatherapp.presenter;
 
 import android.graphics.drawable.Drawable;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import androidapp.com.weatherapp3.R;
-import androidapp.com.weatherapp3.data.WeatherRepository;
-import androidapp.com.weatherapp3.data.models.WeatherRequestRestModel;
-import androidapp.com.weatherapp3.view.MainActivity;
+import androidapp.com.weatherapp.R;
+import androidapp.com.weatherapp.data.WeatherRepository;
+import androidapp.com.weatherapp.data.models.WeatherRequestRestModel;
+import androidapp.com.weatherapp.view.MainActivity;
 import io.reactivex.observers.DisposableSingleObserver;
 
 public class Presenter implements IPresenter {

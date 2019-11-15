@@ -1,4 +1,4 @@
-package androidapp.com.weatherapp3.data;
+package androidapp.com.weatherapp.data;
 
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;

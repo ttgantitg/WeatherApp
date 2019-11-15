@@ -1,4 +1,4 @@
-package androidapp.com.weatherapp3.view;
+package androidapp.com.weatherapp.view;
 
 import android.graphics.drawable.Drawable;
 

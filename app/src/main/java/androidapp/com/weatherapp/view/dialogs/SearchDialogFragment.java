@@ -1,4 +1,4 @@
-package androidapp.com.weatherapp3.view.dialogs;
+package androidapp.com.weatherapp.view.dialogs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -12,7 +12,7 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
-import androidapp.com.weatherapp3.R;
+import androidapp.com.weatherapp.R;
 
 public class SearchDialogFragment extends DialogFragment {
 

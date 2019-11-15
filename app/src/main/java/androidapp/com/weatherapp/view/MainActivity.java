@@ -1,4 +1,4 @@
-package androidapp.com.weatherapp3.view;
+package androidapp.com.weatherapp.view;
 
 import android.Manifest;
 import android.content.Context;
@@ -13,10 +13,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,17 +23,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import java.text.DecimalFormat;
-import androidapp.com.weatherapp3.R;
-import androidapp.com.weatherapp3.presenter.CityPreference;
-import androidapp.com.weatherapp3.presenter.Presenter;
-import androidapp.com.weatherapp3.view.dialogs.CloseDialogFragment;
-import androidapp.com.weatherapp3.view.dialogs.SearchDialogFragment;
+import java.util.Objects;
+import androidapp.com.weatherapp.R;
+import androidapp.com.weatherapp.presenter.CityPreference;
+import androidapp.com.weatherapp.presenter.Presenter;
+import androidapp.com.weatherapp.view.dialogs.CloseDialogFragment;
+import androidapp.com.weatherapp.view.dialogs.SearchDialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
 import static android.widget.Toast.makeText;
 
 public class MainActivity extends AppCompatActivity
@@ -63,6 +62,8 @@ public class MainActivity extends AppCompatActivity
 	FrameLayout progressBar;
 	@BindView(R.id.nav_view)
 	BottomNavigationView navView;
+	@BindView(R.id.refreshLayout)
+	SwipeRefreshLayout mSwipeRefreshLayout;
 
 	private String city;
 	private Presenter myPresenter;
@@ -80,11 +81,39 @@ public class MainActivity extends AppCompatActivity
 		navView.setOnNavigationItemSelectedListener(mOnNavigationItemListener);
 		checkForPermissions();
 		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-		if (haveNetworkConnection()) {
+		if (checkNetworkConnection()) {
 			startInit();
 		} else {
 			makeText(getApplication(), "No network connection.", Toast.LENGTH_LONG).show();
 		}
+		mSwipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
+		mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+			@Override
+			public void onRefresh() {
+				if (navView.getSelectedItemId() == R.id.nav_city_search) {
+					if (checkNetworkConnection()) {
+						startInit();
+					} else {
+						showNoNetConnectionToast();
+					}
+				} else if (navView.getSelectedItemId() == R.id.nav_location) {
+					if (checkNetworkConnection() & checkGPSProvider()) {
+						getWeatherByLocation();
+					} else {
+						showNoNetConnectionOrGPSToast();
+					}
+				}
+				mSwipeRefreshLayout.setRefreshing(false);
+			}
+		});
+	}
+
+	private void showNoNetConnectionOrGPSToast() {
+		makeText(getApplication(),"No network connection or GPS is off.", Toast.LENGTH_LONG).show();
+	}
+
+	private void showNoNetConnectionToast() {
+		makeText(getApplication(), "No network connection.", Toast.LENGTH_LONG).show();
 	}
 
 	private void startInit() {
@@ -106,42 +135,44 @@ public class MainActivity extends AppCompatActivity
 		public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 			switch (menuItem.getItemId()) {
 				case R.id.nav_city_search:
+					if (checkNetworkConnection()) {
 					showDialog();
+					} else {
+						showNoNetConnectionToast();
+					}
 					return true;
 				case R.id.nav_location:
-					if (haveNetworkConnection() & haveGPSProvider()) {
-						requestLocation();
-						myPresenter.refreshAllViewsToZero();
-						showProgressBar();
+					if (checkNetworkConnection() & checkGPSProvider()) {
+						getWeatherByLocation();
 					} else {
-						makeText(getApplication(),"No network connection or GPS is off.", Toast.LENGTH_LONG).show();
+						showNoNetConnectionOrGPSToast();
 					}
 					return true;
 				case R.id.nav_report:
-					Intent email = new Intent(Intent.ACTION_SENDTO);
-					email.setType("text/plain");
-					email.setData(Uri.parse("mailto:" + "ttgantitg@gmail.com"));
-					email.putExtra(Intent.EXTRA_SUBJECT, "Report from App");
-					email.putExtra(Intent.EXTRA_TEXT, "Place your email message here ...");
-					startActivity(Intent.createChooser(email, "Send Email"));
+					if (checkNetworkConnection()) {
+						sendReport();
+					} else {
+						showNoNetConnectionToast();
+					}
 					return true;
 			}
 			return false;
 		}
 	};
 
-	private void showProgressBar() {
-		AlphaAnimation inAnimation = new AlphaAnimation(0f, 1f);
-		inAnimation.setDuration(200);
-		progressBar.setAnimation(inAnimation);
-		progressBar.setVisibility(View.VISIBLE);
+	private void sendReport() {
+		Intent email = new Intent(Intent.ACTION_SENDTO);
+		email.setType("text/plain");
+		email.setData(Uri.parse("mailto:" + "ttgantitg@gmail.com"));
+		email.putExtra(Intent.EXTRA_SUBJECT, "Report from App");
+		email.putExtra(Intent.EXTRA_TEXT, "Place your email message here ...");
+		startActivity(Intent.createChooser(email, "Send Email"));
 	}
 
-	private void hideProgressBar() {
-		AlphaAnimation outAnimation = new AlphaAnimation(1f, 0f);
-		outAnimation.setDuration(200);
-		progressBar.setAnimation(outAnimation);
-		progressBar.setVisibility(View.GONE);
+	private void getWeatherByLocation() {
+		requestLocation();
+		myPresenter.refreshAllViewsToZero();
+		progressBar.setVisibility(View.VISIBLE);
 	}
 
 	public void showDialog() {
@@ -151,16 +182,10 @@ public class MainActivity extends AppCompatActivity
 
 	@Override
 	public void onDialogPositiveClick(DialogFragment dialog) {
-		if (haveNetworkConnection()) {
-			TextInputEditText inputEditText = dialog.getDialog().findViewById(R.id.search_city_text);
-			city = inputEditText.getText().toString().trim();
+			TextInputEditText inputEditText = Objects.requireNonNull(dialog.getDialog()).findViewById(R.id.search_city_text);
+			city = Objects.requireNonNull(inputEditText.getText()).toString().trim();
 			myPresenter.requestWeather(city);
 			new CityPreference(MainActivity.this).setCity(city);
-		} else {
-			Toast toast = makeText(getApplication(), "No network connection.", Toast.LENGTH_LONG);
-			toast.setGravity(Gravity.BOTTOM, 0, 170);
-			toast.show();
-		}
 	}
 
 	@Override
@@ -209,7 +234,7 @@ public class MainActivity extends AppCompatActivity
 							.replaceAll(",", ".")).toString();  // Широта
 					lon = Double.valueOf(df.format(location.getLongitude())
 							.replaceAll(",", ".")).toString();// Долгота
-					hideProgressBar();
+					progressBar.setVisibility(View.GONE);
 					myPresenter.requestWeatherLocation(lon, lat);
 				}
 
@@ -228,11 +253,11 @@ public class MainActivity extends AppCompatActivity
 		}
 	}
 
-	private boolean haveGPSProvider() {
+	private boolean checkGPSProvider() {
 		return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 	}
 
-	public boolean haveNetworkConnection() {
+	public boolean checkNetworkConnection() {
 		boolean haveConnectedWifi = false;
 		boolean haveConnectedMobile = false;
 
