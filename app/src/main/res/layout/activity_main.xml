@@ -112,7 +112,8 @@
                             android:layout_height="0dp"
                             android:layout_weight="1"
                             android:src="@drawable/thermo_icon"
-                            android:scaleType="fitCenter">
+                            android:scaleType="fitCenter"
+                            android:layout_marginTop="6dp">
                         </ImageView>
 
                         <TextView
@@ -140,7 +141,8 @@
                             android:layout_height="0dp"
                             android:layout_weight="1"
                             android:src="@drawable/wind_icon"
-                            android:scaleType="fitCenter">
+                            android:scaleType="fitCenter"
+                            android:layout_marginTop="6dp">
                         </ImageView>
 
                         <TextView
@@ -169,7 +171,8 @@
                             android:layout_height="0dp"
                             android:layout_weight="1"
                             android:src="@drawable/humidity_icon"
-                            android:scaleType="fitCenter">
+                            android:scaleType="fitCenter"
+                            android:layout_marginTop="6dp">
                         </ImageView>
 
                         <TextView
@@ -197,7 +200,8 @@
                             android:layout_height="0dp"
                             android:layout_weight="1"
                             android:src="@drawable/barometr_icon"
-                            android:scaleType="fitCenter">
+                            android:scaleType="fitCenter"
+                            android:layout_marginTop="6dp">
                         </ImageView>
 
                         <TextView
@@ -226,7 +230,8 @@
                             android:layout_height="0dp"
                             android:layout_weight="1"
                             android:src="@drawable/sunrise_icon"
-                            android:scaleType="fitCenter">
+                            android:scaleType="fitCenter"
+                            android:layout_marginTop="6dp">
                         </ImageView>
 
                         <TextView
@@ -254,7 +259,8 @@
                             android:layout_height="0dp"
                             android:layout_weight="1"
                             android:src="@drawable/sunset_icon"
-                            android:scaleType="fitCenter">
+                            android:scaleType="fitCenter"
+                            android:layout_marginTop="6dp">
                         </ImageView>
 
                         <TextView
