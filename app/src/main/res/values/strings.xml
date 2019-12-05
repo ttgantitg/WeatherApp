@@ -6,4 +6,6 @@
     <string name="select">SELECT</string>
     <string name="enter_city">enter city</string>
     <string name="loading">" "LOADING...</string>
+    <string name="noNetOrGPSConn">No network connection or GPS is off.</string>
+    <string name="noNetConn">No network connection.</string>
 </resources>

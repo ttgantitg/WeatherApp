@@ -8,10 +8,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
-
 import androidapp.com.weatherapp.R;
 
 public class SearchDialogFragment extends DialogFragment {
@@ -42,18 +40,10 @@ public class SearchDialogFragment extends DialogFragment {
 		final View dialogView = inflater.inflate(R.layout.request_dialog, null);
 		cancelButton = dialogView.findViewById(R.id.cancel_button);
 		selectButton = dialogView.findViewById(R.id.select_button);
-		cancelButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				SearchDialogFragment.this.getDialog().cancel();
-			}
-		});
-		selectButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mListener.onDialogPositiveClick(SearchDialogFragment.this);
-				dismiss();
-			}
+		cancelButton.setOnClickListener(v -> SearchDialogFragment.this.getDialog().cancel());
+		selectButton.setOnClickListener(v -> {
+			mListener.onDialogPositiveClick(SearchDialogFragment.this);
+			dismiss();
 		});
 		builder.setView(dialogView);
 		return builder.create();

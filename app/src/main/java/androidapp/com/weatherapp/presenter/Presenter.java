@@ -62,7 +62,7 @@ public class Presenter implements IPresenter {
 		presenterMap.put("currentTemp", Math.round(model.main.temp) + " \u2103");
 		presenterMap.put("currentWindSpeed", Math.round(model.wind.speed) + " m/s");
 		presenterMap.put("currentHumidity", Math.round(model.main.humidity) + " %");
-		presenterMap.put("currentPressure", Math.round(model.main.pressure) + " mm");
+		presenterMap.put("currentPressure", Math.round((int) model.main.pressure / 1.333) + " mm");
 		presenterMap.put("sunRise", timeFormat.format(new Date((model.sys.sunrise + (Integer.valueOf(model.timezone) - 10800)) * 1000)));
 		presenterMap.put("sunSet", timeFormat.format(new Date((model.sys.sunset + (Integer.valueOf(model.timezone) - 10800))* 1000)));
 		presenterMap.put("lastUpdate", "Last update: \n"  + dateFormat.format(new Date(model.dt * 1000)));

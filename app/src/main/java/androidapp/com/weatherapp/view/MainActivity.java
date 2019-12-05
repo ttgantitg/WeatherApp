@@ -13,7 +13,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -71,6 +70,7 @@ public class MainActivity extends AppCompatActivity
 	private String lat;
 	private static final int PERMISSION_REQUEST_CODE = 10;
 	private LocationManager locationManager;
+	private boolean isGrantedPermission = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -79,45 +79,44 @@ public class MainActivity extends AppCompatActivity
 		ButterKnife.bind(this);
 		myPresenter = new Presenter(this);
 		navView.setOnNavigationItemSelectedListener(mOnNavigationItemListener);
-		checkForPermissions();
 		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 		if (checkNetworkConnection()) {
+			if (checkForPermissions()) {
+				requestLocationPermissions();
+			}
 			startInit();
 		} else {
-			makeText(getApplication(), "No network connection.", Toast.LENGTH_LONG).show();
+			showNoNetConnectionToast();
 		}
 		initSwipeRefreshLayout();
 	}
 
 	private void initSwipeRefreshLayout() {
 		mSwipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
-		mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-			@Override
-			public void onRefresh() {
-				if (navView.getSelectedItemId() == R.id.nav_city_search) {
-					if (checkNetworkConnection()) {
-						startInit();
-					} else {
-						showNoNetConnectionToast();
-					}
-				} else if (navView.getSelectedItemId() == R.id.nav_location) {
-					if (checkNetworkConnection() & checkGPSProvider()) {
-						getWeatherByLocation();
-					} else {
-						showNoNetConnectionOrGPSToast();
-					}
+		mSwipeRefreshLayout.setOnRefreshListener(() -> {
+			if (navView.getSelectedItemId() == R.id.nav_city_search) {
+				if (checkNetworkConnection()) {
+					startInit();
+				} else {
+					showNoNetConnectionToast();
 				}
-				mSwipeRefreshLayout.setRefreshing(false);
+			} else if (navView.getSelectedItemId() == R.id.nav_location) {
+				if (checkNetworkConnection() & checkGPSProvider()) {
+					requestLocation();
+				} else {
+					showNoNetConnectionOrGPSToast();
+				}
 			}
+			mSwipeRefreshLayout.setRefreshing(false);
 		});
 	}
 
 	private void showNoNetConnectionOrGPSToast() {
-		makeText(getApplication(),"No network connection or GPS is off.", Toast.LENGTH_LONG).show();
+		makeText(getApplicationContext(), getString(R.string.noNetOrGPSConn), Toast.LENGTH_LONG).show();
 	}
 
 	private void showNoNetConnectionToast() {
-		makeText(getApplication(), "No network connection.", Toast.LENGTH_LONG).show();
+		makeText(getApplicationContext(), getString(R.string.noNetConn), Toast.LENGTH_LONG).show();
 	}
 
 	private void startInit() {
@@ -125,29 +124,24 @@ public class MainActivity extends AppCompatActivity
 		myPresenter.requestWeather(city);
 	}
 
-	private void checkForPermissions() {
-		if (ActivityCompat.checkSelfPermission(this,
-				Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-				&& ActivityCompat.checkSelfPermission(this,
-				Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-			requestLocationPermissions();
-	}
-
 	private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemListener
-			= new BottomNavigationView.OnNavigationItemSelectedListener() {
-		@Override
-		public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+		= menuItem -> {
 			switch (menuItem.getItemId()) {
 				case R.id.nav_city_search:
 					if (checkNetworkConnection()) {
-					showDialog();
+						showDialog();
 					} else {
 						showNoNetConnectionToast();
 					}
 					return true;
 				case R.id.nav_location:
 					if (checkNetworkConnection() & checkGPSProvider()) {
-						getWeatherByLocation();
+						if (isGrantedPermission) {
+							requestLocation();
+						} else {
+							requestLocationPermissions();
+							return false;
+						}
 					} else {
 						showNoNetConnectionOrGPSToast();
 					}
@@ -161,8 +155,7 @@ public class MainActivity extends AppCompatActivity
 					return true;
 			}
 			return false;
-		}
-	};
+		};
 
 	private void sendReport() {
 		Intent email = new Intent(Intent.ACTION_SENDTO);
@@ -173,12 +166,6 @@ public class MainActivity extends AppCompatActivity
 		startActivity(Intent.createChooser(email, "Send Email"));
 	}
 
-	private void getWeatherByLocation() {
-		requestLocation();
-		myPresenter.refreshAllViewsToZero();
-		progressBar.setVisibility(View.VISIBLE);
-	}
-
 	public void showDialog() {
 		SearchDialogFragment searchFragment = new SearchDialogFragment();
 		searchFragment.show(getSupportFragmentManager(), "TAG");
@@ -186,10 +173,10 @@ public class MainActivity extends AppCompatActivity
 
 	@Override
 	public void onDialogPositiveClick(DialogFragment dialog) {
-			TextInputEditText inputEditText = Objects.requireNonNull(dialog.getDialog()).findViewById(R.id.search_city_text);
-			city = Objects.requireNonNull(inputEditText.getText()).toString().trim();
-			myPresenter.requestWeather(city);
-			new CityPreference(MainActivity.this).setCity(city);
+		TextInputEditText inputEditText = Objects.requireNonNull(dialog.getDialog()).findViewById(R.id.search_city_text);
+		city = Objects.requireNonNull(inputEditText.getText()).toString().trim();
+		myPresenter.requestWeather(city);
+		new CityPreference(MainActivity.this).setCity(city);
 	}
 
 	@Override
@@ -198,14 +185,20 @@ public class MainActivity extends AppCompatActivity
 		closeFragment.show(getSupportFragmentManager(), "TAG");
 	}
 
+	private boolean checkForPermissions() {
+		return (ActivityCompat.checkSelfPermission(this,
+				Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+				&& ActivityCompat.checkSelfPermission(this,
+				Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED);
+	}
+
 	private void requestLocationPermissions() {
 		if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE)) {
 			ActivityCompat.requestPermissions(this,
-					new String[]{
-							Manifest.permission.ACCESS_COARSE_LOCATION,
-							Manifest.permission.ACCESS_FINE_LOCATION
-					},
-					PERMISSION_REQUEST_CODE);
+				new String[]{
+						Manifest.permission.ACCESS_COARSE_LOCATION,
+						Manifest.permission.ACCESS_FINE_LOCATION
+				}, PERMISSION_REQUEST_CODE);
 		}
 	}
 
@@ -215,9 +208,11 @@ public class MainActivity extends AppCompatActivity
 			if (grantResults.length == 2 &&
 					(grantResults[0] == PackageManager.PERMISSION_GRANTED ||
 					grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
-				requestLocation();
+				isGrantedPermission = true;
+//				requestLocation();
 			}
 		}
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 	}
 
 	private void requestLocation() {
@@ -226,6 +221,8 @@ public class MainActivity extends AppCompatActivity
 				&& ActivityCompat.checkSelfPermission
 				(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
 			return;
+		myPresenter.refreshAllViewsToZero();
+		progressBar.setVisibility(View.VISIBLE);
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_COARSE);
 		String provider = locationManager.getBestProvider(criteria, true);
