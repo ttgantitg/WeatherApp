@@ -209,7 +209,6 @@ public class MainActivity extends AppCompatActivity
 					(grantResults[0] == PackageManager.PERMISSION_GRANTED ||
 					grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
 				isGrantedPermission = true;
-//				requestLocation();
 			}
 		}
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);

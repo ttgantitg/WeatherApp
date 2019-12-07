@@ -4,6 +4,8 @@ import android.graphics.drawable.Drawable;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.TimeZone;
+
 import androidapp.com.weatherapp.R;
 import androidapp.com.weatherapp.data.WeatherRepository;
 import androidapp.com.weatherapp.data.models.WeatherRequestRestModel;
@@ -18,6 +20,9 @@ public class Presenter implements IPresenter {
 	private DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
 	private DateFormat dateFormat = DateFormat.getDateTimeInstance();
 	private WeatherRepository repo = new WeatherRepository();
+	private TimeZone tz = TimeZone.getDefault();
+	private Date now = new Date();
+	private int offsetFromUtc = tz.getOffset(now.getTime()) / 1000;
 
 	public Presenter(MainActivity view) {
 		this.view = view;
@@ -63,8 +68,8 @@ public class Presenter implements IPresenter {
 		presenterMap.put("currentWindSpeed", Math.round(model.wind.speed) + " m/s");
 		presenterMap.put("currentHumidity", Math.round(model.main.humidity) + " %");
 		presenterMap.put("currentPressure", Math.round((int) model.main.pressure / 1.333) + " mm");
-		presenterMap.put("sunRise", timeFormat.format(new Date((model.sys.sunrise + (Integer.valueOf(model.timezone) - 10800)) * 1000)));
-		presenterMap.put("sunSet", timeFormat.format(new Date((model.sys.sunset + (Integer.valueOf(model.timezone) - 10800))* 1000)));
+		presenterMap.put("sunRise", timeFormat.format(new Date((model.sys.sunrise + (Integer.valueOf(model.timezone)) - offsetFromUtc) * 1000)));
+		presenterMap.put("sunSet", timeFormat.format(new Date((model.sys.sunset + (Integer.valueOf(model.timezone)) - offsetFromUtc)* 1000)));
 		presenterMap.put("lastUpdate", "Last update: \n"  + dateFormat.format(new Date(model.dt * 1000)));
 		presenterMap.put("actualId", String.valueOf(model.weather[0].id));
 		presenterMap.put("sunRiseTime", String.valueOf(model.sys.sunrise));
