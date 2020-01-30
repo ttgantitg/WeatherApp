@@ -4,5 +4,6 @@ Android app "Weather"
 The application can show the weather in your chosen city or by your geolocation.
 <br>
 <br>
-<img height="300" src="https://i.ibb.co/GdtBWy3/mainscreen.jpg">
+<img height="300" src="https://i.ibb.co/JKY0Jxv/main1.jpg">
+<img height="300" src="https://i.ibb.co/HFPzcgy/main6.jpg">
 <br>
